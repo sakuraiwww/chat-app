@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #messages { list-style-type: none; padding: 0; }
+        #messages li { padding: 8px; }
+        img { max-width: 300px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Chat Room (Max 5 Users)</h1>
+    <ul id="messages"></ul>
+    <input id="inputMessage" type="text" placeholder="Type a message" />
+    <button id="sendButton">Send</button>
+    <input type="file" id="imageInput" accept="image/*" />
+    <button id="sendImageButton">Send Image</button>
+
+    <script>
+        var socket = io();
+
+        // メッセージを受け取ったとき
+        socket.on('chat message', function(msg){
+            var li = document.createElement('li');
+            li.textContent = msg;  // メッセージをリストに追加
+            document.getElementById('messages').appendChild(li);
+        });
+
+        // 画像メッセージを受け取ったとき
+        socket.on('image message', function(imageUrl){
+            var li = document.createElement('li');
+            var img = document.createElement('img');
+            img.src = imageUrl; // 画像を表示
+            li.appendChild(img);
+            document.getElementById('messages').appendChild(li);
+        });
+
+        // メッセージ送信ボタンをクリックしたとき
+        document.getElementById('sendButton').addEventListener('click', function() {
+            var message = document.getElementById('inputMessage').value;
+            if (message) {
+                socket.emit('chat message', message); // サーバーにメッセージを送信
+                document.getElementById('inputMessage').value = ''; // 入力欄をクリア
+            }
+        });
+
+        // 画像送信ボタンをクリックしたとき
+        document.getElementById('sendImageButton').addEventListener('click', function() {
+            var fileInput = document.getElementById('imageInput');
+            var file = fileInput.files[0];
+            if (file) {
+                var formData = new FormData();
+                formData.append('image', file);
+
+                // 画像をサーバーにアップロード
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    socket.emit('image message', data.imageUrl); // 画像のURLをサーバーに送信
+                })
+                .catch(error => console.error('Error uploading image:', error));
+            }
+        });
+
+        // Enterキーでメッセージ送信
+        document.getElementById('inputMessage').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('sendButton').click();
+            }
+        });
+    </script>
+</body>
+</html>
