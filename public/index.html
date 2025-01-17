@@ -45,10 +45,6 @@
             var message = document.getElementById('inputMessage').value;
             if (message) {
                 socket.emit('chat message', message); // サーバーにメッセージを送信
-                        // 自分のメッセージをリストの最初に表示
-        var messages = document.getElementById('messages');
-        var newMessage = document.createElement('li');
-        newMessage.textContent = message;
                 document.getElementById('inputMessage').value = ''; // 入力欄をクリア
             }
         }); 
