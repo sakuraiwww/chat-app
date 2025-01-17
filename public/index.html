@@ -49,6 +49,13 @@
             }
         });
 
+            // 新しいメッセージをリストの最初に挿入
+        if (messages.firstChild) {
+          messages.insertBefore(newMessage, messages.firstChild);
+        } else {
+          messages.appendChild(newMessage); // リストが空の場合
+        }
+
         // 画像送信ボタンをクリックしたとき
         document.getElementById('sendImageButton').addEventListener('click', function() {
             var fileInput = document.getElementById('imageInput');
