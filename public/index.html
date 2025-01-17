@@ -19,7 +19,7 @@
     <button id="sendButton">Send</button>
     <input type="file" id="imageInput" accept="image/*" />
     <button id="sendImageButton">Send Image</button>
-    <!-- <ul id="messages"></ul> -->
+    <ul id="messages"></ul>
 
     <script>
         var socket = io();
@@ -40,21 +40,28 @@
             document.getElementById('messages').appendChild(li);
         });
 
-        // メッセージ送信ボタンをクリックしたとき
-        document.getElementById('sendButton').addEventListener('click', function() {
-            var message = document.getElementById('inputMessage').value;
-            if (message) {
-                socket.emit('chat message', message); // サーバーにメッセージを送信
-                document.getElementById('inputMessage').value = ''; // 入力欄をクリア
-            }
-        });
+        document.getElementById('sendButton').addEventListener('click', function () {
+    var message = document.getElementById('inputMessage').value;
+    if (message) {
+        // サーバーにメッセージを送信
+        socket.emit('chat message', message);
 
-            // 新しいメッセージをリストの最初に挿入
+        // メッセージをリストに追加（新しいメッセージを一番上に表示）
+        var messages = document.getElementById('messages'); // <ul id="messages"> を取得
+        var newMessage = document.createElement('li'); // 新しいリストアイテムを作成
+        newMessage.textContent = message; // 入力内容を設定
+
+        // リストの最初に新しいメッセージを挿入
         if (messages.firstChild) {
-          messages.insertBefore(newMessage, messages.firstChild);
+            messages.insertBefore(newMessage, messages.firstChild);
         } else {
-          messages.appendChild(newMessage); // リストが空の場合
+            messages.appendChild(newMessage); // リストが空の場合
         }
+
+        // 入力欄をクリア
+        document.getElementById('inputMessage').value = '';
+    }
+});
 
         // 画像送信ボタンをクリックしたとき
         document.getElementById('sendImageButton').addEventListener('click', function() {
